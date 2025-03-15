@@ -6,6 +6,7 @@ const url = require('url')
 const dataPath = path.join(__dirname, 'data')
 
 const server = http.createServer((req,res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*')
     if(req.url == '/jokes' && req.method == 'GET'){
         getAllJokes(req,res)
     }
@@ -48,10 +49,10 @@ function addJoke(req, res){
 
         let dir = fs.readFileSync(dataPath)
         let fileName = dir.length+'.json'
-
         let filePath = path.join(dataPath, fileName)
+
         fs.writeFileSync(filePath, JSON.stringify(joke))
-        res.end()
+        return res.end(JSON.stringify(joke))
     })
 }
 
@@ -69,8 +70,12 @@ function like(req,res){
         joke.likes++
 
         fs.writeFileSync(filePath, JSON.stringify(joke))
+        joke.id = id;
+
+        return res.end(JSON.stringify(joke));
     }
-    res.end()
+    res.statusCode = '400';
+    return res.end('Bad request');
 }
 
 function dislike(req,res){
@@ -87,6 +92,11 @@ function dislike(req,res){
         joke.dislikes++
 
         fs.writeFileSync(filePath, JSON.stringify(joke))
+
+        joke.id = id;
+
+        return res.end(JSON.stringify(joke));
     }
-    res.end()
+    res.statusCode = '400';
+    return res.end('Bad request');
 }
